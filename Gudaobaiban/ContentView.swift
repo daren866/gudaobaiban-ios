@@ -87,6 +87,14 @@ struct WebView: UIViewRepresentable {
         configuration.userContentController = userContentController
         
         let webView = WKWebView(frame: .zero, configuration: configuration)
+        
+        // 设置自定义 User-Agent
+        if let originalUA = webView.customUserAgent ?? webView.value(forKey: "userAgent") as? String {
+            let customUA = originalUA + " Gudaobaiban/1.0"
+            webView.customUserAgent = customUA
+            print("设置自定义 UA:", customUA)
+        }
+        
         return webView
     }
     
