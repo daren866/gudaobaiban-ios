@@ -89,13 +89,34 @@ struct WebView: UIViewRepresentable {
         // 创建 webView
         let webView = WKWebView(frame: .zero, configuration: configuration)
         
-        // 设置自定义 User-Agent
-        if let originalUA = webView.value(forKey: "userAgent") as? String {
-            let customUA = originalUA + " Gudaowebapp/1.0 Gudaobaiban/1.0"
-            webView.customUserAgent = customUA
-        }
+        // 设置导航代理
+        webView.navigationDelegate = context.coordinator
         
         return webView
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, WKNavigationDelegate {
+        let parent: WebView
+        
+        init(_ parent: WebView) {
+            self.parent = parent
+        }
+        
+        // WebView 加载完成后执行 JavaScript 代码
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            // 执行 JavaScript 代码标注这是古道白板 app
+            webView.evaluateJavaScript("window.__IS_GUDAO_APP = true") { (result, error) in
+                if let error = error {
+                    print("执行 JavaScript 错误:", error)
+                } else {
+                    print("成功执行 JavaScript: window.__IS_GUDAO_APP = true")
+                }
+            }
+        }
     }
     
     func updateUIView(_ uiView: WKWebView, context: Context) {
